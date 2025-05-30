@@ -1,0 +1,4 @@
+deployment/
+.github
+iac/dev-cluster-config
+iac/terrafom.tfstate
