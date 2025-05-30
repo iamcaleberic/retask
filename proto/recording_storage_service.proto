@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package rss;
+
+// The Recording Storage Service ingests, indexes, and serves back Rerun Recordings.
+//
+// Rerun Recordings are collections of Chunks (column-oriented frames of data, generally
+// implemented as Arrow RecordBatches).
+//
+// Check out <https://rerun.io/docs/concepts/apps-and-recordings> for more information.
+service RecordingStorageService {
+  // Inserts one or more Chunks into the Recording Storage Service.
+  rpc InsertChunks(stream Chunk) returns (InsertChunksResponse) {}
+
+  // Fetches the contents of a Rerun Recording (i.e. its Chunks) from the Recording Storage Service.
+  rpc FetchRecording(FetchRecordingRequest) returns (stream Chunk) {}
+
+  // Fetches a specific Chunk from the Recording Storage Service.
+  rpc FetchChunk(FetchChunkRequest) returns (Chunk) {}
+}
+
+// A Chunk is a column-oriented frame of data.
+//
+// Physically, it is just another Arrow RecordBatch, with some Rerun-specific metadata.
+//
+// You can read more about Rerun Chunks at <https://rerun.io/docs/concepts/chunks>.
+message Chunk {
+  // The payload is an Arrow-IPC encoded Arrow [RecordBatch](https://docs.rs/arrow/latest/arrow/array/struct.RecordBatch.html)
+  //
+  // In addition to the data itself, the payload contains some Rerun-specific metadata,
+  // and in particular these 3 keys (shown here with some example values):
+  // ```
+  // # The globally unique ID of the Rerun Recording that this Chunk belongs to.
+  // "rerun.recording_id": "cf85b21a-ff46-46fa-badb-9df4240b083e"
+  //
+  // # The globally unique ID of this specific Chunk.
+  // "rerun.id": "1810C5CD6A327F7C7FDD133154561099"
+  //
+  // # The name of the specific entity to which this Chunk of data is attached to, in the
+  // # context of that specific Recording.
+  // "rerun.entity_path": "/helix/structure/scaffolding/beads"
+  // ```
+  bytes payload = 1;
+}
+
+// Response type for the `InsertChunks` endpoint.
+message InsertChunksResponse {
+  repeated string recording_ids = 1;
+}
+
+// Request type for the `FetchRecording` endpoint.
+message FetchRecordingRequest {
+  // The ID of the Recording to fetch.
+  //
+  // Recording IDs are globally unique.
+  string recording_id = 1;
+}
+
+// Request type for the `FetchChunk` endpoint.
+message FetchChunkRequest {
+  // The ID of the Chunk to fetch.
+  //
+  // Chunk IDs are globally unique.
+  string chunk_id = 1;
+}
