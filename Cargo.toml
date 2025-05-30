@@ -1,0 +1,37 @@
+[package]
+name = "rss"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.94"
+arrow = { version = "54.0.0", features = ["prettyprint"] }
+async-stream = "0.3.6"
+clap = { version = "4.5.23", features = ["derive"] }
+prost = "0.13.4"
+rand = "0.9.0"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = [
+    "tracing-log",
+    "fmt",
+    "env-filter",
+] }
+tokio = { version = "1.42.0", features = ["rt-multi-thread"] }
+tokio-stream = "0.1.17"
+tonic = "0.12.3"
+
+re_chunk = "0.23.2"
+re_format_arrow = "0.23.2"
+re_log_encoding = { version = "0.23.2", features = ["decoder"] }
+re_log_types = "0.23.2"
+
+[build-dependencies]
+tonic-build = "0.12.3"
+
+# we want hard crashes, always, no unwinding
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
